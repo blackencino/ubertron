@@ -1,0 +1,11 @@
+SET( H_FILES )
+
+SET( CXX_FILES
+     main.cpp )
+
+SET( SOURCE_FILES ${H_FILES} ${CXX_FILES} )
+
+SET( THIS_LIBS )
+
+ADD_EXECUTABLE( cpp14_hello_world ${SOURCE_FILES} )
+TARGET_LINK_LIBRARIES( cpp14_hello_world ${THIS_LIBS} )
