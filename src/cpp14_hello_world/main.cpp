@@ -5,6 +5,10 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <tuple>
+#include <typeinfo>
+#include <array>
+#include <type_traits>
 
 using namespace std;
 
@@ -24,7 +28,7 @@ void test_recursive_deduced_return_type() {
 }
 
 //------------------------------------------------------------------------------
-void testGenericLambdas() {
+void test_generic_lambdas() {
     auto add_arguments = [](auto x, auto y) { return x + y; };
 
     auto val1 = add_arguments(1, 2);
@@ -39,7 +43,7 @@ void testGenericLambdas() {
 }
 
 //------------------------------------------------------------------------------
-void testBinaryLiteralsAndDigitSeparators() {
+void test_binary_literals_and_digit_separators() {
     int val = 0b11110000;
     cout << "Output mask: "
         << 0b1000'0001'1000'0000
@@ -53,7 +57,8 @@ void testBinaryLiteralsAndDigitSeparators() {
 template <typename T>
 constexpr T pi = T(3.1415926535897932385);
 
-void testVariableTemplate() {
+//------------------------------------------------------------------------------
+void test_variable_templates() {
     cout << "int pi (for indiana): " << pi<int> << endl
         << "float pi: " << pi<float> << endl
         << "double pi: " << pi<double> << endl;
@@ -66,11 +71,65 @@ void test_make_unique() {
 }
 
 //------------------------------------------------------------------------------
+void test_tuple_addressing() {
+    tuple<string, string, int> t("foo", "bar", 7);
+    int i = get<int>(t);        // i == 7
+    int j = get<2>(t);          // Same as before: j == 7
+    // string s = get<string>(t);  // Compile-time error due to ambiguity
+}
+
+//------------------------------------------------------------------------------
+class [[deprecated]] flaky {
+};
+
+//------------------------------------------------------------------------------
+[[deprecated("Consider using something other than cranky")]]
+int cranky() {
+   return 0;
+}
+
+//------------------------------------------------------------------------------
+void test_deprecated() {
+    auto f = flaky{};
+    auto i = cranky();
+}
+
+//------------------------------------------------------------------------------
+void test_lambda_capture() {
+    auto ptr = make_unique<int>(10);
+    auto lambda = [value = move(ptr)] { return *value; };
+    cout << "Captured lambda value: " << lambda() << endl;
+}
+
+//------------------------------------------------------------------------------
+constexpr int fibonacci(int i) {
+    if (i == 0) {
+        return 0;
+    } else if (i == 1) {
+        return 1;
+    } else {
+        return fibonacci(i-1) + fibonacci(i-2);
+    }
+}
+
+//------------------------------------------------------------------------------
+void test_better_constexpr() {
+    auto fib_array = array<float,fibonacci(4)>{};
+    cout << "Size of constexpr fibonacci array: "
+        << fib_array.size() << endl
+        << "Fibonacci(4): " << fibonacci(4) << endl;
+}
+
+//------------------------------------------------------------------------------
 int main(int, char**) {
     test_recursive_deduced_return_type();
-    testGenericLambdas();
-    testBinaryLiteralsAndDigitSeparators();
-    testVariableTemplate();
+    test_generic_lambdas();
+    test_binary_literals_and_digit_separators();
+    test_variable_templates();
     test_make_unique();
+    test_tuple_addressing();
+    test_deprecated();
+    test_lambda_capture();
+    test_better_constexpr();
     return 0;
 }
